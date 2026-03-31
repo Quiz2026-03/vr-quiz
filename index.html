@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>세탁기 사용법 배우기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:#1a7fc1; --blue-dark:#0d5a8a; --blue-light:#e3f2fd;
+  --green:#2e9e5b; --red:#d63c3c; --yellow:#e07b00;
+  --bg:#f0f8ff; --white:#ffffff; --text:#1a2332; --dim:#5a6a7a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* 시작 화면 */
+.start-screen{position:fixed;inset:0;z-index:500;background:linear-gradient(160deg,#1a7fc1,#0d5a8a);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;}
+.start-icon{font-size:90px;margin-bottom:16px;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.start-title{font-size:32px;font-weight:900;color:white;line-height:1.4;margin-bottom:12px;}
+.start-desc{font-size:16px;color:rgba(255,255,255,.85);line-height:1.8;margin-bottom:32px;max-width:360px;}
+.chips{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:36px;}
+.chip{background:rgba(255,255,255,.18);border-radius:50px;padding:10px 20px;color:white;font-size:14px;font-weight:700;}
+.start-btn{background:white;border:none;border-radius:50px;padding:18px 52px;color:var(--blue);font-size:20px;font-weight:900;font-family:inherit;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.2);transition:transform .2s;}
+.start-btn:hover{transform:scale(1.04);}
+
+/* 헤더 */
+header{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--blue);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(0,0,0,.2);}
+.h-title{font-size:17px;font-weight:900;color:white;display:flex;align-items:center;gap:8px;}
+.score-badge{background:white;border-radius:20px;padding:7px 16px;font-size:14px;font-weight:700;color:var(--blue);}
+
+/* 진행바 */
+.prog-wrap{position:fixed;top:52px;left:0;right:0;z-index:99;background:white;padding:8px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #cde4f5;}
+.prog-label{font-size:13px;font-weight:700;color:var(--blue);white-space:nowrap;}
+.prog-bar{flex:1;height:10px;background:#cde4f5;border-radius:5px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),#4ab3f4);border-radius:5px;transition:width .5s;}
+.prog-step{font-size:13px;font-weight:700;color:var(--dim);white-space:nowrap;}
+
+/* 장면 */
+.scene-wrap{padding-top:96px;min-height:100vh;display:flex;flex-direction:column;}
+.scene-card{flex:1;margin:16px;background:white;border-radius:24px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1);}
+
+/* 시각 영역 */
+.scene-visual{height:300px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.scene-visual.s1{background:linear-gradient(135deg,#e8f4fd,#b3d9f5);}
+.scene-visual.s2{background:linear-gradient(135deg,#e8f8ee,#a8e0c0);}
+.scene-visual.s3{background:linear-gradient(135deg,#fff3e0,#ffcc80);}
+
+/* CSS 세탁기 */
+.machine{width:160px;height:185px;background:white;border-radius:14px;border:3px solid #ddd;box-shadow:0 8px 32px rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;position:relative;}
+.machine-top{width:100%;height:36px;background:#f5f5f5;border-radius:11px 11px 0 0;display:flex;align-items:center;padding:0 10px;gap:5px;}
+.m-dot{width:9px;height:9px;border-radius:50%;}
+.m-dot.r{background:#f44336;} .m-dot.g{background:#4caf50;} .m-dot.b{background:#2196f3;}
+.machine-door{width:108px;height:108px;border-radius:50%;border:5px solid #ddd;background:radial-gradient(circle at 38% 35%,rgba(255,255,255,.85),rgba(180,220,255,.35));margin:6px auto;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:inset 0 3px 10px rgba(0,0,0,.08);}
+.machine-door.spin{animation:spin 2.5s linear infinite;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.machine-base{width:100%;height:25px;background:#eee;border-radius:0 0 11px 11px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.m-led{width:7px;height:7px;border-radius:50%;background:#bbb;}
+.m-led.on{background:#4caf50;animation:blink 1.2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* 부속 */
+.det-box{position:absolute;right:16px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:3px;}
+.det-cap{width:24px;height:10px;background:#1b5e20;border-radius:4px 4px 0 0;}
+.det-body{width:40px;height:58px;background:linear-gradient(135deg,#43a047,#66bb6a);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 3px 10px rgba(0,0,0,.15);}
+.det-lbl{font-size:10px;font-weight:700;color:#2e7d32;}
+.bubble-wrap{position:absolute;top:8px;left:12px;}
+.bub{position:absolute;border-radius:50%;background:rgba(100,180,255,.4);animation:rise 2s ease-in infinite;}
+.bub:nth-child(1){width:11px;height:11px;left:0;animation-delay:0s;}
+.bub:nth-child(2){width:7px;height:7px;left:16px;animation-delay:.6s;}
+.bub:nth-child(3){width:13px;height:13px;left:6px;animation-delay:1.2s;}
+@keyframes rise{0%{transform:translateY(0);opacity:.8}100%{transform:translateY(-55px);opacity:0}}
+
+/* 설명 영역 */
+.scene-info{padding:18px 20px;}
+.s-badge{display:inline-block;background:var(--blue);color:white;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:10px;}
+.s-title{font-size:21px;font-weight:900;margin-bottom:7px;}
+.s-desc{font-size:14px;color:var(--dim);line-height:1.7;margin-bottom:14px;}
+.steps{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+.s-item{display:flex;align-items:center;gap:10px;background:var(--blue-light);border-radius:10px;padding:10px 14px;font-size:14px;font-weight:700;}
+.s-num{width:27px;height:27px;border-radius:50%;background:var(--blue);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0;}
+.quiz-btn{width:100%;background:var(--blue);border:none;border-radius:12px;padding:15px;color:white;font-size:17px;font-weight:900;font-family:inherit;cursor:pointer;transition:background .2s;}
+.quiz-btn:hover{background:var(--blue-dark);}
+.quiz-btn:disabled{background:var(--green);cursor:default;}
+
+/* 퀴즈 모달 */
+.modal-bg{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+.modal-bg.active{display:flex;}
+.quiz-card{background:white;border-radius:24px;padding:30px 26px;max-width:540px;width:92%;box-shadow:0 8px 40px rgba(0,0,0,.2);animation:up .3s ease;}
+@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.q-badge{display:inline-block;background:var(--blue);color:white;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:12px;}
+.q-text{font-size:19px;font-weight:900;line-height:1.6;margin-bottom:18px;white-space:pre-line;}
+.q-opts{display:flex;flex-direction:column;gap:9px;margin-bottom:14px;}
+.opt{background:#f0f8ff;border:2px solid #cde4f5;border-radius:11px;padding:13px 16px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;text-align:left;transition:all .2s;display:flex;align-items:center;gap:10px;}
+.opt:hover:not(:disabled){border-color:var(--blue);background:#e3f2fd;transform:translateX(4px);}
+.opt-n{width:30px;height:30px;border-radius:50%;background:var(--blue);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0;}
+.opt.correct{background:#e8f8ee;border-color:var(--green);}
+.opt.correct .opt-n{background:var(--green);}
+.opt.wrong{background:#fdf0f0;border-color:var(--red);}
+.opt.wrong .opt-n{background:var(--red);}
+.opt:disabled{cursor:default;}
+.feedback{display:none;border-radius:11px;padding:13px 16px;font-size:14px;font-weight:700;line-height:1.7;margin-bottom:12px;}
+.feedback.ok{background:#e8f8ee;border:2px solid var(--green);color:#1a6b3a;display:block;}
+.feedback.no{background:#fdf0f0;border:2px solid var(--red);color:#a02020;display:block;}
+.fb-icon{font-size:22px;margin-bottom:4px;}
+.next-btn{width:100%;background:var(--blue);border:none;border-radius:11px;padding:14px;color:white;font-size:16px;font-weight:900;font-family:inherit;cursor:pointer;display:none;transition:background .2s;}
+.next-btn:hover{background:var(--blue-dark);}
+.next-btn.show{display:block;}
+
+/* 결과 */
+.result-bg{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);align-items:center;justify-content:center;}
+.result-bg.active{display:flex;}
+.result-card{background:white;border-radius:26px;padding:42px 30px;max-width:440px;width:92%;text-align:center;box-shadow:0 12px 60px rgba(0,0,0,.25);animation:up .4s ease;}
+.r-icon{font-size:68px;margin-bottom:14px;}
+.r-title{font-size:25px;font-weight:900;margin-bottom:8px;}
+.r-sub{font-size:14px;color:var(--dim);line-height:1.7;margin-bottom:26px;white-space:pre-line;}
+.r-score{background:var(--bg);border-radius:18px;padding:20px;margin-bottom:22px;}
+.r-score-num{font-size:54px;font-weight:900;color:var(--blue);line-height:1;margin-bottom:6px;}
+.r-score-lbl{font-size:14px;color:var(--dim);font-weight:700;}
+.r-break{display:flex;gap:10px;margin-bottom:22px;}
+.r-item{flex:1;border:2px solid #eee;border-radius:12px;padding:13px 8px;}
+.r-num{font-size:25px;font-weight:900;margin-bottom:4px;}
+.r-num.c{color:var(--green);} .r-num.w{color:var(--red);}
+.r-lbl{font-size:12px;color:var(--dim);font-weight:700;}
+.retry-btn{width:100%;background:var(--blue);border:none;border-radius:12px;padding:15px;color:white;font-size:16px;font-weight:900;font-family:inherit;cursor:pointer;margin-bottom:10px;transition:background .2s;}
+.retry-btn:hover{background:var(--blue-dark);}
+.r-note{font-size:12px;color:var(--dim);line-height:1.7;}
+
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+
+<!-- 시작 화면 -->
+<div class="start-screen" id="startScreen">
+  <div class="start-icon">🫧</div>
+  <h1 class="start-title">세탁기 사용법<br>배우기</h1>
+  <p class="start-desc">세탁기 사용 방법을 단계별로 배우고<br>퀴즈도 풀어봐요! 😊</p>
+  <div class="chips">
+    <div class="chip">📖 3단계 학습</div>
+    <div class="chip">❓ 3문제 퀴즈</div>
+    <div class="chip">⏱ 약 5분</div>
+  </div>
+  <button class="start-btn" onclick="start()">▶ 시작하기</button>
+</div>
+
+<!-- 헤더 -->
+<header>
+  <div class="h-title">🫧 세탁기 사용법 배우기</div>
+  <div class="score-badge" id="scoreBadge">점수: 0점</div>
+</header>
+
+<!-- 진행바 -->
+<div class="prog-wrap">
+  <div class="prog-label" id="progLabel">1단계</div>
+  <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <div class="prog-step" id="progStep">1 / 3</div>
+</div>
+
+<!-- 장면 -->
+<div class="scene-wrap" id="sceneWrap"></div>
+
+<!-- 퀴즈 모달 -->
+<div class="modal-bg" id="quizModal">
+  <div class="quiz-card">
+    <div class="q-badge" id="qBadge">문제 1 / 3</div>
+    <div class="q-text" id="qText"></div>
+    <div class="q-opts" id="qOpts"></div>
+    <div class="feedback" id="feedback"><div class="fb-icon" id="fbIcon"></div><div id="fbText"></div></div>
+    <button class="next-btn" id="nextBtn"></button>
+  </div>
+</div>
+
+<!-- 결과 -->
+<div class="result-bg" id="resultBg">
+  <div class="result-card">
+    <div class="r-icon" id="rIcon"></div>
+    <div class="r-title" id="rTitle"></div>
+    <div class="r-sub" id="rSub"></div>
+    <div class="r-score">
+      <div class="r-score-num" id="rNum"></div>
+      <div class="r-score-lbl">/ 9점 만점</div>
+    </div>
+    <div class="r-break">
+      <div class="r-item"><div class="r-num c" id="rC">0</div><div class="r-lbl">✅ 맞춤</div></div>
+      <div class="r-item"><div class="r-num w" id="rW">0</div><div class="r-lbl">❌ 틀림</div></div>
+    </div>
+    <button class="retry-btn" onclick="retry()">↺ 다시 해보기</button>
+    <div class="r-note">수고하셨어요! 틀린 문제는 다시 읽고 확인해보세요 😊</div>
+  </div>
+</div>
+
+<script>
+const data = [
+  {
+    step:"1단계", emoji:"👕", title:"빨래 넣기", cls:"s1",
+    desc:"세탁기 문을 열고\n빨래를 차례대로 넣어요!",
+    steps:["세탁기 앞에 서요","세탁기 문을 당겨서 열어요","빨래를 하나씩 넣어요","문을 꼭 닫아요 (딸깍!)"],
+    door:"👕", spin:false, det:false, bub:false,
+    q:"세탁기에 빨래를 넣기 전에\n가장 먼저 할 일은 무엇인가요?",
+    opts:["세탁기 문을 열어요","전원 버튼을 눌러요","세제를 먼저 넣어요","물을 받아요"],
+    ans:0,
+    ok:"정답이에요! 👏\n세탁기 문을 먼저 열고 빨래를 넣어요.\n빨래를 다 넣은 다음 문을 닫아요.",
+    no:"아쉬워요! 😊\n정답은 '세탁기 문을 열어요'예요.\n문을 먼저 열고 빨래를 넣어야 해요."
+  },
+  {
+    step:"2단계", emoji:"🧴", title:"세제 넣기", cls:"s2",
+    desc:"세제 칸(서랍)에 세제를 넣어요!\n너무 많이 넣으면 안 돼요.",
+    steps:["세제 칸(서랍)을 찾아요","서랍을 천천히 당겨요","세제를 적당히 넣어요","서랍을 다시 닫아요"],
+    door:"💧", spin:false, det:true, bub:false,
+    q:"세탁기 세제는\n어디에 넣어야 하나요?",
+    opts:["옷 위에 직접 부어요","세제 칸(서랍)에 넣어요","물통에 미리 섞어요","아무 데나 넣어요"],
+    ans:1,
+    ok:"정답이에요! 👏\n세제는 세제 칸(서랍)에 넣어야 해요.\n옷 위에 부으면 옷이 상할 수 있어요.",
+    no:"아쉬워요! 😊\n정답은 '세제 칸(서랍)에 넣어요'예요.\n세제 칸은 세탁기 위쪽 서랍이에요."
+  },
+  {
+    step:"3단계", emoji:"▶️", title:"세탁 시작하기", cls:"s3",
+    desc:"전원 버튼을 누르고\n세탁을 시작해요!",
+    steps:["전원 버튼을 눌러요","세탁 코스를 골라요 (일반)","시작 버튼을 눌러요","세탁이 끝나면 옷을 꺼내요"],
+    door:"🌀", spin:true, det:false, bub:true,
+    q:"세탁이 모두 끝났을 때\n어떻게 해야 하나요?",
+    opts:["전원 끄고 옷을 꺼내요","문을 닫아두어요","바로 다시 세탁해요","그냥 놔둬요"],
+    ans:0,
+    ok:"정답이에요! 👏\n세탁이 끝나면 옷을 빨리 꺼내야 해요!\n오래 두면 냄새가 날 수 있어요.",
+    no:"아쉬워요! 😊\n정답은 '전원 끄고 옷을 꺼내요'예요.\n세탁 후 옷을 빨리 꺼내야 냄새가 안 나요."
+  }
+];
+
+let cur=0, scores=[null,null,null];
+
+function start(){
+  document.getElementById('startScreen').classList.add('hidden');
+  render(0);
+}
+
+function render(i){
+  cur=i;
+  const d=data[i];
+  document.getElementById('progLabel').textContent=d.step+'. '+d.title;
+  document.getElementById('progStep').textContent=(i+1)+' / '+data.length;
+  document.getElementById('progFill').style.width=(i/data.length*100)+'%';
+
+  const detHTML=d.det?`<div class="det-box"><div class="det-cap"></div><div class="det-body">🧴</div><div class="det-lbl">세제</div></div>`:'';
+  const bubHTML=d.bub?`<div class="bubble-wrap"><div class="bub"></div><div class="bub"></div><div class="bub"></div></div>`:'';
+  const doorCls='machine-door'+(d.spin?' spin':'');
+  const stepsHTML=d.steps.map((s,j)=>`<div class="s-item"><div class="s-num">${j+1}</div><span>${s}</span></div>`).join('');
+  const done=scores[i]!==null;
+  const btnTxt=done?'✅ 퀴즈 완료!':'❓ 퀴즈 풀기';
+
+  document.getElementById('sceneWrap').innerHTML=`
+    <div class="scene-card">
+      <div class="scene-visual ${d.cls}">
+        <div style="position:relative;display:flex;align-items:center;justify-content:center;">
+          <div class="machine">
+            <div class="machine-top">
+              <div class="m-dot r"></div><div class="m-dot g"></div><div class="m-dot b"></div>
+            </div>
+            <div class="${doorCls}">${d.door}</div>
+            <div class="machine-base">
+              <div class="m-led"></div>
+              <div class="m-led ${d.spin?'on':''}"></div>
+              <div class="m-led"></div>
+            </div>
+          </div>
+          ${detHTML}${bubHTML}
+        </div>
+      </div>
+      <div class="scene-info">
+        <div class="s-badge">${d.emoji} ${d.step}</div>
+        <div class="s-title">${d.title}</div>
+        <div class="s-desc">${d.desc.replace(/\n/g,'<br>')}</div>
+        <div class="steps">${stepsHTML}</div>
+        <button class="quiz-btn" onclick="openQuiz()" ${done?'disabled':''}>${btnTxt}</button>
+      </div>
+    </div>`;
+}
+
+function openQuiz(){
+  const d=data[cur];
+  document.getElementById('qBadge').textContent=`문제 ${cur+1} / ${data.length}`;
+  document.getElementById('qText').textContent=d.q;
+  const el=document.getElementById('qOpts');
+  el.innerHTML='';
+  d.opts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML=`<span class="opt-n">${i+1}</span>${o}`;
+    b.onclick=()=>pick(i);
+    el.appendChild(b);
+  });
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('nextBtn').className='next-btn';
+  document.getElementById('quizModal').classList.add('active');
+}
+
+function pick(sel){
+  const d=data[cur];
+  const ok=sel===d.ans;
+  scores[cur]=ok;
+  document.querySelectorAll('.opt').forEach((b,i)=>{
+    b.disabled=true;
+    if(i===d.ans) b.classList.add('correct');
+    else if(i===sel&&!ok) b.classList.add('wrong');
+  });
+  const fb=document.getElementById('feedback');
+  document.getElementById('fbIcon').textContent=ok?'🎉':'💡';
+  document.getElementById('fbText').textContent=ok?d.ok:d.no;
+  fb.className='feedback '+(ok?'ok':'no');
+  const c=scores.filter(s=>s===true).length;
+  document.getElementById('scoreBadge').textContent=`점수: ${c*3}점`;
+  const isLast=cur===data.length-1;
+  const nb=document.getElementById('nextBtn');
+  nb.textContent=isLast?'📊 결과 보기':'다음 단계로 →';
+  nb.className='next-btn show';
+  nb.onclick=isLast?showResult:nextScene;
+}
+
+function nextScene(){
+  document.getElementById('quizModal').classList.remove('active');
+  render(cur+1);
+}
+
+function showResult(){
+  document.getElementById('quizModal').classList.remove('active');
+  document.getElementById('progFill').style.width='100%';
+  const c=scores.filter(s=>s===true).length;
+  const w=scores.filter(s=>s===false).length;
+  const pct=Math.round(c/data.length*100);
+  document.getElementById('rC').textContent=c;
+  document.getElementById('rW').textContent=w;
+  document.getElementById('rNum').textContent=(c*3)+'점';
+  if(pct>=70){
+    document.getElementById('rIcon').textContent='🏆';
+    document.getElementById('rTitle').textContent='참 잘했어요!';
+    document.getElementById('rTitle').style.color='#2e9e5b';
+    document.getElementById('rSub').textContent='세탁기 사용법을 잘 배웠어요!\n앞으로 혼자서도 잘 할 수 있을 거예요 😊';
+  } else {
+    document.getElementById('rIcon').textContent='📚';
+    document.getElementById('rTitle').textContent='조금 더 연습해요!';
+    document.getElementById('rTitle').style.color='#e07b00';
+    document.getElementById('rSub').textContent='다시 한 번 천천히 읽어보고\n퀴즈를 다시 풀어봐요 😊';
+  }
+  document.getElementById('resultBg').classList.add('active');
+}
+
+function retry(){
+  scores=[null,null,null];
+  document.getElementById('scoreBadge').textContent='점수: 0점';
+  document.getElementById('resultBg').classList.remove('active');
+  render(0);
+}
+</script>
+</body>
+</html>
